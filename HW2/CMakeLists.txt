@@ -3,10 +3,18 @@ cmake_minimum_required(VERSION 3.8)
 project("hw2")
 
 set(SRC_FILES
+  src/GameBoard.cpp
   src/main.cpp
+  src/Queen.cpp
 )
 
-add_executable(hw2 ${SRC_FILES})
+set(INCLUDE_FILES
+  include/GameBoard.h
+  include/Queen.h
+)
+
+
+add_executable(hw2 ${SRC_FILES} ${INCLUDE_FILES})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET hw2 PROPERTY CXX_STANDARD 20)
