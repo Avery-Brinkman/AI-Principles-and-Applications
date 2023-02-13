@@ -13,8 +13,8 @@ set(INCLUDE_FILES
   include/Queen.h
 )
 
-
 add_executable(hw2 ${SRC_FILES} ${INCLUDE_FILES})
+target_include_directories(hw2 PRIVATE include)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET hw2 PROPERTY CXX_STANDARD 20)

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 
 namespace GAME_NS {
@@ -11,12 +10,20 @@ namespace GAME_NS {
 
   class GameBoard {
   public:
+    GameBoard() = default;
+
+    GameBoard(int numQueens, int range, const std::vector<Queen>& queens);
+
+    bool inConflict(const Queen& first, const Queen& second) const;
+
+    int distance(const Queen& first, const Queen& second) const;
+
   private:
     int m_numQueens;
 
     int m_range;
 
-    std::vector<std::shared_ptr<Queen>> m_queens;
+    std::vector<Queen> m_queens;
 
     int m_conflicts;
 
