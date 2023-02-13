@@ -1,9 +1,1 @@
-/CMakeFiles/
-/Debug/
-/hw2.dir/
-/x64/
-*.vcxproj
-*.filters
-cmake_install.cmake
-CMakeCache.txt
-hw2.sln
+/Build/*
