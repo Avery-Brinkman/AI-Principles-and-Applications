@@ -1,14 +1,14 @@
 #pragma once
 
 namespace GAME_NS {
-  struct Location {
-    int row;
-    int col;
-  };
+struct Location {
+  int row;
+  int col;
+};
 
-  class Queen {
-  public:
-  private:
-    Location m_location;
-  };
-}
+class Queen {
+public:
+private:
+  Location m_location;
+};
+} // namespace GAME_NS
