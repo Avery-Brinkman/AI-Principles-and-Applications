@@ -119,12 +119,6 @@ void GameBoard::solve() {
     // Improve
     improve();
 
-    // Show first 4
-    if (shown < 4) {
-      display();
-      shown++;
-    }
-
     // Check for solution
     if (m_conflicts == 0) {
       std::cout << "Solution found!" << std::endl;
@@ -141,6 +135,12 @@ void GameBoard::solve() {
     if (m_transitions > 60) {
       std::cout << "Maximum transition limit reached!" << std::endl;
       searching = false;
+    }
+
+    // Show first 4
+    if (shown < 4) {
+      display();
+      shown++;
     }
   }
 
