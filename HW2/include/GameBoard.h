@@ -28,6 +28,10 @@ public:
 
   void improve();
 
+  void display() const;
+
+  void solve();
+
 private:
   int m_numQueens;
 

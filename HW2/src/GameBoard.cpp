@@ -47,14 +47,6 @@ int GameBoard::distance(const Queen& first, const Queen& second) const {
 }
 
 void GameBoard::improve() {
-  // Vector of the best horizontal, vertical, and diagonal moves
-  // std::vector<BoardDescription> options = {horizontal(), vertical(), diagonalPos(),
-  // diagonalNeg()};
-  // Define how to compare each option
-  // auto board_compare = [](const BoardDescription& a, const BoardDescription& b) {
-  //  return (a.conflicts < b.conflicts);
-  //};
-
   BoardDescription best = {m_conflicts, m_queens};
 
   // Look at each queen
@@ -62,6 +54,10 @@ void GameBoard::improve() {
     // Look at each postition on the board
     for (int r = 1; r <= 8; r++) {
       for (int c = 1; c <= 8; c++) {
+        // Skip step if new position is the same as the current position
+        if (m_queens[q] == Queen{r, c})
+          continue;
+
         // Copy current state
         std::vector<Queen> newQueens = m_queens;
         // Set current queen to new possible position
@@ -96,4 +92,60 @@ void GameBoard::improve() {
     m_queens = best.queens;
     m_transitions++;
   }
+}
+
+void GameBoard::display() const {
+  std::cout << "Queen postions: ";
+  for (int q = 0; q < m_numQueens; q++) {
+    std::cout << "(" << m_queens[q].row << ", " << m_queens[q].col << ")";
+    if (q + 1 < m_numQueens)
+      std::cout << ",";
+    std::cout << " ";
+  }
+  std::cout << "Conflicts: " << m_conflicts << std::endl;
+}
+
+void GameBoard::solve() {
+  std::cout << "Starting state:" << std::endl;
+  display();
+  std::cout << std::endl;
+
+  int shown = 0;
+  bool searching = true;
+
+  // Go until solution is found
+  while (searching) {
+    int prevConflicts = m_conflicts;
+    // Improve
+    improve();
+
+    // Show first 4
+    if (shown < 4) {
+      display();
+      shown++;
+    }
+
+    // Check for solution
+    if (m_conflicts == 0) {
+      std::cout << "Solution found!" << std::endl;
+      searching = false;
+    }
+
+    // Check for local minimum
+    if (m_conflicts >= prevConflicts) {
+      std::cout << "Local minimum reached!" << std::endl;
+      searching = false;
+    }
+
+    // Check for max transitions
+    if (m_transitions > 60) {
+      std::cout << "Maximum transition limit reached!" << std::endl;
+      searching = false;
+    }
+  }
+
+  std::cout << std::endl << "Final state: " << std::endl;
+  display();
+  std::cout << "Transitions: " << m_transitions << std::endl;
+  std::cout << "Examined states: " << m_examined << std::endl;
 }
