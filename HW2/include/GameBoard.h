@@ -8,15 +8,29 @@ struct Queen {
   int col;
 };
 
+struct BoardDescription {
+  int conflicts;
+  std::vector<Queen> queens;
+};
+
 class GameBoard {
 public:
   GameBoard() = default;
 
   GameBoard(int numQueens, int range, const std::vector<Queen>& queens);
 
+  int getConflicts(const std::vector<Queen>& queens) const;
+
   bool inConflict(const Queen& first, const Queen& second) const;
 
   int distance(const Queen& first, const Queen& second) const;
+
+  BoardDescription horizontal();
+  BoardDescription vertical();
+  BoardDescription diagonalPos();
+  BoardDescription diagonalNeg();
+
+  void improve();
 
 private:
   int m_numQueens;
