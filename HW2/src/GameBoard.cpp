@@ -138,7 +138,7 @@ void GameBoard::solve() {
     }
 
     // Show first 4
-    if (shown < 4) {
+    if (shown < 4 && searching) {
       display();
       shown++;
     }
