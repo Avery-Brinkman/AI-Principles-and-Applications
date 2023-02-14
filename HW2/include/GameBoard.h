@@ -6,6 +6,7 @@ namespace GAME_NS {
 struct Queen {
   int row;
   int col;
+  auto operator<=>(const Queen&) const = default;
 };
 
 struct BoardDescription {
@@ -24,11 +25,6 @@ public:
   bool inConflict(const Queen& first, const Queen& second) const;
 
   int distance(const Queen& first, const Queen& second) const;
-
-  BoardDescription horizontal();
-  BoardDescription vertical();
-  BoardDescription diagonalPos();
-  BoardDescription diagonalNeg();
 
   void improve();
 

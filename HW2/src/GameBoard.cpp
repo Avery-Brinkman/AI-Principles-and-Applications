@@ -46,114 +46,54 @@ int GameBoard::distance(const Queen& first, const Queen& second) const {
   return (int)sqrt(pow(second.row - first.row, 2) + pow(second.col - first.col, 2));
 }
 
-BoardDescription GameBoard::horizontal() {
-  BoardDescription best = {m_conflicts, m_queens};
-  for (int q = 0; q < m_numQueens; q++) {
-    for (int x = -1 * m_range; x < m_range; x++) {
-      if (x == 0)
-        continue;
-
-      std::vector<Queen> newQueens = m_queens;
-      newQueens[q].col += x;
-      if ((newQueens[q].col <= 0) || (newQueens[q].col > 8))
-        continue;
-
-      m_examined++;
-      int newConflicts = getConflicts(newQueens);
-      if (newConflicts < best.conflicts) {
-        best.conflicts = newConflicts;
-        best.queens = newQueens;
-      }
-    }
-  }
-
-  return best;
-}
-
-BoardDescription GameBoard::vertical() {
-  BoardDescription best = {m_conflicts, m_queens};
-  for (int q = 0; q < m_numQueens; q++) {
-    for (int y = -1 * m_range; y < m_range; y++) {
-      if (y == 0)
-        continue;
-
-      std::vector<Queen> newQueens = m_queens;
-      newQueens[q].row += y;
-      if ((newQueens[q].row <= 0) || (newQueens[q].row > 8))
-        continue;
-
-      m_examined++;
-      int newConflicts = getConflicts(newQueens);
-      if (newConflicts < best.conflicts) {
-        best.conflicts = newConflicts;
-        best.queens = newQueens;
-      }
-    }
-  }
-
-  return best;
-}
-
-BoardDescription GameBoard::diagonalPos() {
-  BoardDescription best = {m_conflicts, m_queens};
-  for (int q = 0; q < m_numQueens; q++) {
-    for (int d = -1 * m_range; d < m_range; d++) {
-      if (d == 0)
-        continue;
-
-      std::vector<Queen> newQueens = m_queens;
-      newQueens[q].row += d;
-      newQueens[q].col -= d;
-      if ((newQueens[q].row <= 0) || (newQueens[q].row > 8) || (newQueens[q].col <= 0) ||
-          (newQueens[q].col > 8))
-        continue;
-
-      m_examined++;
-      int newConflicts = getConflicts(newQueens);
-      if (newConflicts < best.conflicts) {
-        best.conflicts = newConflicts;
-        best.queens = newQueens;
-      }
-    }
-  }
-
-  return best;
-}
-
-BoardDescription GameBoard::diagonalNeg() {
-  BoardDescription best = {m_conflicts, m_queens};
-  for (int q = 0; q < m_numQueens; q++) {
-    for (int d = -1 * m_range; d < m_range; d++) {
-      if (d == 0)
-        continue;
-
-      std::vector<Queen> newQueens = m_queens;
-      newQueens[q].row -= d;
-      newQueens[q].col += d;
-      if ((newQueens[q].row <= 0) || (newQueens[q].row > 8) || (newQueens[q].col <= 0) ||
-          (newQueens[q].col > 8))
-        continue;
-
-      m_examined++;
-      int newConflicts = getConflicts(newQueens);
-      if (newConflicts < best.conflicts) {
-        best.conflicts = newConflicts;
-        best.queens = newQueens;
-      }
-    }
-  }
-
-  return best;
-}
-
 void GameBoard::improve() {
   // Vector of the best horizontal, vertical, and diagonal moves
-  std::vector<BoardDescription> options = {horizontal(), vertical(), diagonalPos(), diagonalNeg()};
+  // std::vector<BoardDescription> options = {horizontal(), vertical(), diagonalPos(),
+  // diagonalNeg()};
   // Define how to compare each option
-  auto board_compare = [](const BoardDescription& a, const BoardDescription& b) {
-    return (a.conflicts < b.conflicts);
-  };
+  // auto board_compare = [](const BoardDescription& a, const BoardDescription& b) {
+  //  return (a.conflicts < b.conflicts);
+  //};
 
-  // Get the best move
-  auto bestMove = std::ranges::min_element(options, board_compare);
+  BoardDescription best = {m_conflicts, m_queens};
+
+  // Look at each queen
+  for (int q = 0; q < m_numQueens; q++) {
+    // Look at each postition on the board
+    for (int r = 1; r <= 8; r++) {
+      for (int c = 1; c <= 8; c++) {
+        // Copy current state
+        std::vector<Queen> newQueens = m_queens;
+        // Set current queen to new possible position
+        newQueens[q] = {r, c};
+
+        // Skip if a queen already occupies this cell
+        bool overlap = false;
+        for (int other = 0; other < m_numQueens; other++) {
+          if (other == q)
+            continue;
+          if (newQueens[q] == newQueens[other]) {
+            overlap = true;
+            break;
+          }
+        }
+        if (overlap)
+          continue;
+
+        // Find number of conflicts in this state
+        int newConflicts = getConflicts(newQueens);
+        // Keep track of the newly examined state
+        m_examined++;
+        if (newConflicts < best.conflicts) {
+          best = {newConflicts, newQueens};
+        }
+      }
+    }
+  }
+
+  if (best.conflicts < m_conflicts) {
+    m_conflicts = best.conflicts;
+    m_queens = best.queens;
+    m_transitions++;
+  }
 }
