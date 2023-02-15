@@ -100,28 +100,26 @@ void GameBoard::solve() {
     // Improve
     improve();
 
+    // Show first 4
+    if (shown < 4) {
+      display();
+      shown++;
+    }
+
     // Check for solution
     if (m_conflicts == 0) {
       std::cout << "Solution found!" << std::endl;
       searching = false;
     }
-
     // Check for local minimum
-    if (m_localMin) {
+    else if (m_localMin) {
       std::cout << "Local minimum reached!" << std::endl;
       searching = false;
     }
-
     // Check for max transitions
-    if (m_transitions > 60) {
+    else if (m_transitions >= 60) {
       std::cout << "Maximum transition limit reached!" << std::endl;
       searching = false;
-    }
-
-    // Show first 4
-    if (shown < 4 && searching) {
-      display();
-      shown++;
     }
   }
 
