@@ -49,7 +49,7 @@ namespace GAME_NS {
 
     int m_examined = 0;
 
-    std::vector<std::vector<BoardDescription>> m_prevStates;
+    std::vector<BoardDescription> m_prevStates;
 
     bool m_localMin = false;
   };

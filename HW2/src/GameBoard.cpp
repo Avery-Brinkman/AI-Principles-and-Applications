@@ -12,8 +12,10 @@ GameBoard::GameBoard(int numQueens, int range, const std::vector<Queen>& queens)
   // Find out how many conflicts we start with
   m_conflicts = getConflicts(m_queens);
 
-  m_prevStates = std::vector<std::vector<BoardDescription>>(m_conflicts + 1, std::vector<BoardDescription>{});
-  m_prevStates[m_conflicts].push_back({ m_conflicts, m_queens });
+  // Initialize vector to track previous states and store current one
+
+  m_prevStates = { { m_conflicts, m_queens } };
+  //m_prevStates[m_conflicts].push_back({ m_conflicts, m_queens });
 }
 
 int GameBoard::getConflicts(const std::vector<Queen>& queens) const {
@@ -50,6 +52,7 @@ int GameBoard::distance(const Queen& first, const Queen& second) const {
 }
 
 void GameBoard::improve() {
+  // Start by comparing to current state
   BoardDescription best = { m_conflicts, m_queens };
 
   // Look at each queen
@@ -57,22 +60,32 @@ void GameBoard::improve() {
     // Look at each postition on the board
     for (int r = 1; r <= 8; r++) {
       for (int c = 1; c <= 8; c++) {
+        // Check if moving this queen to this position is an improvement and update best accordingly
         evaluateMove(best, q, r, c);
       }
     }
   }
 
+  // If the best possible option is the same or better than our current state... 
   if (best.conflicts <= m_conflicts) {
+    // See if the best possible option is the same as the current state (i.e. local min)
     if (best.queens == m_queens) {
       m_localMin = true;
+      // Stop trying to improve
       return;
     }
 
+    // If it's not an improvement, track this state so it's not repeated
+    if (best.conflicts == m_conflicts)
+      m_prevStates.push_back(best);
+    // If it is an improvement, clear previous states and start over tracking
+    else
+      m_prevStates = { best };
+
+    // Update our state to the better one
     m_conflicts = best.conflicts;
     m_queens = best.queens;
     m_transitions++;
-
-    m_prevStates.at(best.conflicts).push_back(best);
   }
 }
 
@@ -130,36 +143,39 @@ void GameBoard::solve() {
 }
 
 void GameBoard::evaluateMove(BoardDescription& currentBest, int q, int r, int c) {
-  // Skip step if new position is the same as the current position
+  // Skip if the new position is the same as the current position
   if (m_queens[q] == Queen{ r, c })
     return;
 
   // Copy current state
   std::vector<Queen> newQueens = m_queens;
-  // Set current queen to new possible position
+  // Set current queen to new position
   newQueens[q] = { r, c };
 
-  // Skip if a queen already occupies this cell
+  // Skip if a queen already occupies this new cell
   for (int other = 0; other < m_numQueens; other++) {
+    // Don't compare against self
     if (other == q)
       continue;
-    if (newQueens[q] == newQueens[other]) {
+    if (newQueens[q] == newQueens[other])
       return;
-    }
   }
 
   // Find number of conflicts in this state
   BoardDescription newBest = { getConflicts(newQueens), newQueens };
-  // Keep track of the newly examined state
+  // Keep track of the fact that we have examined another state
   m_examined++;
-  if ((newBest.conflicts <= currentBest.conflicts) && (!checkRepeated(newBest))) {
+
+  // If it's an improvement or equal, and is not a repeated state, update best possible move
+  if ((newBest.conflicts <= currentBest.conflicts) && (!checkRepeated(newBest)))
     currentBest = newBest;
-  }
 }
 
 bool GameBoard::checkRepeated(BoardDescription& check) {
-  for (int i = 0; i < m_prevStates.at(check.conflicts).size(); i++) {
-    if ((m_prevStates.at(check.conflicts)).at(i).queens == check.queens)
+  // Look at each previous state
+  for (int i = 0; i < m_prevStates.size(); i++) {
+    // Check if the previous state is the same as the one we're looking at
+    if (m_prevStates.at(i).queens == check.queens)
       return true;
   }
   return false;
