@@ -33,7 +33,7 @@ namespace GAME_NS {
     void solve();
 
   private:
-    void evaluateMove(BoardDescription& currentbest, int q, int r, int c);
+    void evaluateMove(BoardDescription& currentBest, int q, int r, int c);
 
     bool checkRepeated(BoardDescription& check);
 
@@ -50,5 +50,7 @@ namespace GAME_NS {
     int m_examined = 0;
 
     std::vector<std::vector<BoardDescription>> m_prevStates;
+
+    bool m_localMin = false;
   };
 } // namespace GAME_NS

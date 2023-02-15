@@ -63,6 +63,11 @@ void GameBoard::improve() {
   }
 
   if (best.conflicts <= m_conflicts) {
+    if (best.queens == m_queens) {
+      m_localMin = true;
+      return;
+    }
+
     m_conflicts = best.conflicts;
     m_queens = best.queens;
     m_transitions++;
@@ -92,7 +97,6 @@ void GameBoard::solve() {
 
   // Go until solution is found
   while (searching) {
-    int prevConflicts = m_conflicts;
     // Improve
     improve();
 
@@ -103,10 +107,10 @@ void GameBoard::solve() {
     }
 
     // Check for local minimum
-    //if (BoardDescription{ m_conflicts , m_queens } = prevConflicts) {
-    //  std::cout << "Local minimum reached!" << std::endl;
-    //  searching = false;
-    //}
+    if (m_localMin) {
+      std::cout << "Local minimum reached!" << std::endl;
+      searching = false;
+    }
 
     // Check for max transitions
     if (m_transitions > 60) {
@@ -115,10 +119,10 @@ void GameBoard::solve() {
     }
 
     // Show first 4
-    //if (shown < 4 && searching) {
-    display();
-    shown++;
-    //}
+    if (shown < 4 && searching) {
+      display();
+      shown++;
+    }
   }
 
   std::cout << std::endl << "Final state: " << std::endl;
@@ -127,7 +131,7 @@ void GameBoard::solve() {
   std::cout << "Examined states: " << m_examined << std::endl;
 }
 
-void GameBoard::evaluateMove(BoardDescription& currentbest, int q, int r, int c) {
+void GameBoard::evaluateMove(BoardDescription& currentBest, int q, int r, int c) {
   // Skip step if new position is the same as the current position
   if (m_queens[q] == Queen{ r, c })
     return;
@@ -150,8 +154,8 @@ void GameBoard::evaluateMove(BoardDescription& currentbest, int q, int r, int c)
   BoardDescription newBest = { getConflicts(newQueens), newQueens };
   // Keep track of the newly examined state
   m_examined++;
-  if ((newBest.conflicts <= currentbest.conflicts) && (!checkRepeated(newBest))) {
-    currentbest = newBest;
+  if ((newBest.conflicts <= currentBest.conflicts) && (!checkRepeated(newBest))) {
+    currentBest = newBest;
   }
 }
 
