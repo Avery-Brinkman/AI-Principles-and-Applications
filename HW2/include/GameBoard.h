@@ -3,46 +3,52 @@
 #include <vector>
 
 namespace GAME_NS {
-struct Queen {
-  int row;
-  int col;
-  auto operator<=>(const Queen&) const = default;
-};
+  struct Queen {
+    int row;
+    int col;
+    auto operator<=>(const Queen&) const = default;
+  };
 
-struct BoardDescription {
-  int conflicts;
-  std::vector<Queen> queens;
-};
+  struct BoardDescription {
+    int conflicts;
+    std::vector<Queen> queens;
+  };
 
-class GameBoard {
-public:
-  GameBoard() = default;
+  class GameBoard {
+  public:
+    GameBoard() = default;
 
-  GameBoard(int numQueens, int range, const std::vector<Queen>& queens);
+    GameBoard(int numQueens, int range, const std::vector<Queen>& queens);
 
-  int getConflicts(const std::vector<Queen>& queens) const;
+    int getConflicts(const std::vector<Queen>& queens) const;
 
-  bool inConflict(const Queen& first, const Queen& second) const;
+    bool inConflict(const Queen& first, const Queen& second) const;
 
-  int distance(const Queen& first, const Queen& second) const;
+    int distance(const Queen& first, const Queen& second) const;
 
-  void improve();
+    void improve();
 
-  void display() const;
+    void display() const;
 
-  void solve();
+    void solve();
 
-private:
-  int m_numQueens;
+  private:
+    void evaluateMove(BoardDescription& currentbest, int q, int r, int c);
 
-  int m_range;
+    bool checkRepeated(BoardDescription& check);
 
-  std::vector<Queen> m_queens;
+    int m_numQueens;
 
-  int m_conflicts;
+    int m_range;
 
-  int m_transitions = 0;
+    std::vector<Queen> m_queens;
 
-  int m_examined = 0;
-};
+    int m_conflicts;
+
+    int m_transitions = 0;
+
+    int m_examined = 0;
+
+    std::vector<std::vector<BoardDescription>> m_prevStates;
+  };
 } // namespace GAME_NS

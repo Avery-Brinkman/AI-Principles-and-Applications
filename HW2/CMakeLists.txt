@@ -5,12 +5,10 @@ project("hw2")
 set(SRC_FILES
   src/GameBoard.cpp
   src/main.cpp
-  src/Queen.cpp
 )
 
 set(INCLUDE_FILES
   include/GameBoard.h
-  include/Queen.h
 )
 
 add_executable(hw2 ${SRC_FILES} ${INCLUDE_FILES})

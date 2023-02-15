@@ -7,10 +7,13 @@
 using namespace GAME_NS;
 
 GameBoard::GameBoard(int numQueens, int range, const std::vector<Queen>& queens)
-    : m_numQueens{numQueens}, m_range{range}, m_queens{queens} {
+  : m_numQueens{ numQueens }, m_range{ range }, m_queens{ queens } {
 
   // Find out how many conflicts we start with
   m_conflicts = getConflicts(m_queens);
+
+  m_prevStates = std::vector<std::vector<BoardDescription>>(m_conflicts + 1, std::vector<BoardDescription>{});
+  m_prevStates[m_conflicts].push_back({ m_conflicts, m_queens });
 }
 
 int GameBoard::getConflicts(const std::vector<Queen>& queens) const {
@@ -38,7 +41,7 @@ bool GameBoard::inConflict(const Queen& first, const Queen& second) const {
 
   // If they are in the same row, the same column, or same diagonal, check if they are too close
   return (((first.row == second.row) || (first.col == second.col) || (slope == 1)) &&
-          (distance(first, second) <= m_range));
+    (distance(first, second) <= m_range));
 }
 
 int GameBoard::distance(const Queen& first, const Queen& second) const {
@@ -47,50 +50,24 @@ int GameBoard::distance(const Queen& first, const Queen& second) const {
 }
 
 void GameBoard::improve() {
-  BoardDescription best = {m_conflicts, m_queens};
+  BoardDescription best = { m_conflicts, m_queens };
 
   // Look at each queen
   for (int q = 0; q < m_numQueens; q++) {
     // Look at each postition on the board
     for (int r = 1; r <= 8; r++) {
       for (int c = 1; c <= 8; c++) {
-        // Skip step if new position is the same as the current position
-        if (m_queens[q] == Queen{r, c})
-          continue;
-
-        // Copy current state
-        std::vector<Queen> newQueens = m_queens;
-        // Set current queen to new possible position
-        newQueens[q] = {r, c};
-
-        // Skip if a queen already occupies this cell
-        bool overlap = false;
-        for (int other = 0; other < m_numQueens; other++) {
-          if (other == q)
-            continue;
-          if (newQueens[q] == newQueens[other]) {
-            overlap = true;
-            break;
-          }
-        }
-        if (overlap)
-          continue;
-
-        // Find number of conflicts in this state
-        int newConflicts = getConflicts(newQueens);
-        // Keep track of the newly examined state
-        m_examined++;
-        if (newConflicts < best.conflicts) {
-          best = {newConflicts, newQueens};
-        }
+        evaluateMove(best, q, r, c);
       }
     }
   }
 
-  if (best.conflicts < m_conflicts) {
+  if (best.conflicts <= m_conflicts) {
     m_conflicts = best.conflicts;
     m_queens = best.queens;
     m_transitions++;
+
+    m_prevStates.at(best.conflicts).push_back(best);
   }
 }
 
@@ -126,10 +103,10 @@ void GameBoard::solve() {
     }
 
     // Check for local minimum
-    if (m_conflicts >= prevConflicts) {
-      std::cout << "Local minimum reached!" << std::endl;
-      searching = false;
-    }
+    //if (BoardDescription{ m_conflicts , m_queens } = prevConflicts) {
+    //  std::cout << "Local minimum reached!" << std::endl;
+    //  searching = false;
+    //}
 
     // Check for max transitions
     if (m_transitions > 60) {
@@ -138,14 +115,50 @@ void GameBoard::solve() {
     }
 
     // Show first 4
-    if (shown < 4 && searching) {
-      display();
-      shown++;
-    }
+    //if (shown < 4 && searching) {
+    display();
+    shown++;
+    //}
   }
 
   std::cout << std::endl << "Final state: " << std::endl;
   display();
   std::cout << "Transitions: " << m_transitions << std::endl;
   std::cout << "Examined states: " << m_examined << std::endl;
+}
+
+void GameBoard::evaluateMove(BoardDescription& currentbest, int q, int r, int c) {
+  // Skip step if new position is the same as the current position
+  if (m_queens[q] == Queen{ r, c })
+    return;
+
+  // Copy current state
+  std::vector<Queen> newQueens = m_queens;
+  // Set current queen to new possible position
+  newQueens[q] = { r, c };
+
+  // Skip if a queen already occupies this cell
+  for (int other = 0; other < m_numQueens; other++) {
+    if (other == q)
+      continue;
+    if (newQueens[q] == newQueens[other]) {
+      return;
+    }
+  }
+
+  // Find number of conflicts in this state
+  BoardDescription newBest = { getConflicts(newQueens), newQueens };
+  // Keep track of the newly examined state
+  m_examined++;
+  if ((newBest.conflicts <= currentbest.conflicts) && (!checkRepeated(newBest))) {
+    currentbest = newBest;
+  }
+}
+
+bool GameBoard::checkRepeated(BoardDescription& check) {
+  for (int i = 0; i < m_prevStates.at(check.conflicts).size(); i++) {
+    if ((m_prevStates.at(check.conflicts)).at(i).queens == check.queens)
+      return true;
+  }
+  return false;
 }
