@@ -46,11 +46,6 @@ bool GameBoard::inConflict(const Queen& first, const Queen& second) const {
     (distance(first, second) <= m_range));
 }
 
-int GameBoard::distance(const Queen& first, const Queen& second) const {
-  // Simple distance calculation
-  return (int)sqrt(pow(second.row - first.row, 2) + pow(second.col - first.col, 2));
-}
-
 void GameBoard::improve() {
   // Start by comparing to current state
   BoardDescription best = { m_conflicts, m_queens };
@@ -140,6 +135,11 @@ void GameBoard::solve() {
   display();
   std::cout << "Transitions: " << m_transitions << std::endl;
   std::cout << "Examined states: " << m_examined << std::endl;
+}
+
+int GameBoard::distance(const Queen& first, const Queen& second) const {
+  // Simple distance calculation
+  return (int)sqrt(pow(second.row - first.row, 2) + pow(second.col - first.col, 2));
 }
 
 void GameBoard::evaluateMove(BoardDescription& currentBest, int q, int r, int c) {
