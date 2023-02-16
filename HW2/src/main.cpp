@@ -35,8 +35,7 @@ int main() {
 
   // Open file
   // Adjust path accordingly
-  std::ifstream inputFile(
-      "C:/Users/avery/Documents/AI-Principles-and-Applications/HW2/TestPatterns.txt");
+  std::ifstream inputFile("../../TestPatterns.txt");
 
   // Make sure it opened
   if (inputFile.is_open()) {
@@ -76,5 +75,7 @@ int main() {
     std::cout << std::endl << "===============================================" << std::endl;
   }
 
+  // Show results
+  system("pause");
   return 0;
 }
