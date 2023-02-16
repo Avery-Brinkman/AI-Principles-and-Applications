@@ -13,7 +13,6 @@ GameBoard::GameBoard(int numQueens, int range, const std::vector<Queen>& queens)
   m_conflicts = getConflicts(m_queens);
 
   // Initialize vector to track previous states and store current one
-
   m_prevStates = {{m_conflicts, m_queens}};
 }
 
