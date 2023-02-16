@@ -94,6 +94,8 @@ void GameBoard::display() const {
 }
 
 void GameBoard::solve() {
+  std::cout << "Number of queens: " << m_numQueens << std::endl;
+  std::cout << "Range: " << m_range << std::endl;
   std::cout << "Starting state:" << std::endl;
   display();
   std::cout << std::endl;
